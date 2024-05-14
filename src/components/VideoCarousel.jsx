@@ -44,13 +44,13 @@ const VideoCarousel = () => {
   const [loadingData, setLoadedData] = useState([]);
 
   useEffect(() => {
-    if (loadingData.length > 3) {
-      if (!isPlaying) {
-        videoRef.current[videoId].pause();
-      } else {
-        startPlay && videoRef.current[videoId].play();
-      }
+    if (!loadingData.length > 3) {
+      return;
     }
+
+    !isPlaying
+      ? videoRef.current[videoId].pause()
+      : startPlay && videoRef.current[videoId].play();
   }, [startPlay, videoId, isPlaying, loadingData]);
 
   const handleLoadedMetaData = (index, event) => {
@@ -59,10 +59,10 @@ const VideoCarousel = () => {
 
   useEffect(() => {
     let currentProgress = 0;
-    let span = videoSpanRef.current;
+    const span = videoSpanRef.current;
 
     if (span[videoId]) {
-      let animation = gsap.to(span[videoId], {
+      const animation = gsap.to(span[videoId], {
         onUpdate: () => {
           const progress = Math.ceil(animation.progress() * 100);
 
@@ -116,42 +116,37 @@ const VideoCarousel = () => {
   }, [videoId, startPlay]);
 
   const handleProcess = (type, index) => {
-    switch (type) {
-      case "video-end":
-        setVideo((preVideo) => ({
-          ...preVideo,
-          isEnd: true,
-          videoId: index + 1,
-        }));
-        break;
-      case "video-last":
-        setVideo((preVideo) => ({
-          ...preVideo,
-          isLastVideo: true,
-        }));
-        break;
-      case "video-reset":
-        setVideo((preVideo) => ({
-          ...preVideo,
-          isLastVideo: false,
-          videoId: 0,
-        }));
-        break;
-      case "play":
-        setVideo((preVideo) => ({
-          ...preVideo,
-          isPlaying: !preVideo.isPlaying,
-        }));
-        break;
-      case "pause":
-        setVideo((preVideo) => ({
-          ...preVideo,
-          isPlaying: !preVideo.isPlaying,
-        }));
-        break;
+    const updateFunctions = {
+      "video-end": (preVideo) => ({
+        ...preVideo,
+        isEnd: true,
+        videoId: index + 1,
+      }),
+      "video-last": (preVideo) => ({
+        ...preVideo,
+        isLastVideo: true,
+      }),
+      "video-reset": (preVideo) => ({
+        ...preVideo,
+        isLastVideo: false,
+        videoId: 0,
+      }),
+      play: (preVideo) => ({
+        ...preVideo,
+        isPlaying: !preVideo.isPlaying,
+      }),
+      pause: (preVideo) => ({
+        ...preVideo,
+        isPlaying: !preVideo.isPlaying,
+      }),
+    };
 
-      default:
-        return video;
+    const updateFunction = updateFunctions[type];
+    if (updateFunction) {
+      setVideo(updateFunction);
+    } else {
+      // Handle default case
+      return video;
     }
   };
 

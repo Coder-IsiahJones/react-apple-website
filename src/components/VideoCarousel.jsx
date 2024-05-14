@@ -166,7 +166,7 @@ const VideoCarousel = () => {
                 {/* Video */}
                 <video
                   id="video"
-                  className={`${list.id === 2 && "translate-x-44"} pointer-events-none size-full object-cover`}
+                  className={`${list.id === 2 && "translate-x-44"} pointer-events-none`}
                   playsInline={true}
                   preload="auto"
                   muted
